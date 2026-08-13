@@ -11,3 +11,213 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  UTILISATEUR
+  ADMINISTRATEUR
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  GROUPES_SEULEMENT
+  PRIVE
+}
+
+enum GroupMemberStatus {
+  MODERATEUR
+  MEMBRE
+}
+
+enum ContactLevel {
+  PERSONNE
+  MEMBRES_DE_MES_GROUPES
+  TOUT_LE_MONDE
+}
+
+enum GroupVisibility {
+  PUBLIC
+  PRIVE
+}
+
+enum MembershipStatus {
+  EN_ATTENTE
+  ACCEPTEE
+  REFUSEE
+}
+
+enum ReportCategory {
+  INAPPROPRIE
+  SPAM
+  INQUIETANT
+}
+
+enum ReportStatus {
+  EN_ATTENTE
+  TRAITE
+  REJETE
+}
+
+enum ActivityCategory {
+  EXERCICE
+  BIEN_ETRE
+  LOISIR
+  SORTIE
+}
+
+enum ResourceType {
+  ARTICLE
+  VIDEO
+  AUDIO
+  EXERCICE
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  role Role @default(UTILISATEUR)
+  pseudonyme String?
+  nom String?
+  prenom String?
+  avatar String?
+  bio String?
+  profileVisibility ProfileVisibility @default(PUBLIC)
+  contactLevel ContactLevel @default(TOUT_LE_MONDE)
+  suspended Boolean @default(false)
+  autoriseMessages Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Journal
+  journalEntries JournalEntry[]
+
+  // Groupes créés
+  groupsCreated Group[]
+  groupsMembership GroupMembership[]
+  
+
+  // Messagerie 
+  sentMessages Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  
+  // Ressources favorites
+  favorites Favorite[]
+
+  // Posts
+  posts Post[]
+  comments Comment[]
+}
+
+model JournalEntry {
+  id Int @id @default(autoincrement())
+  userId String
+  humeur Int
+  energie Int
+  sommeil Int 
+  anxiete Int
+  activities JournalActivity[]
+  evenements String?
+  gratitude String?
+  createdAt DateTime @db.Date @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([userId, createdAt])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JournalActivity {
+  id Int @id @default(autoincrement())
+  journalEntryId Int
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  activityId Int
+  activity Activity @relation(fields: [activityId], references: [id])
+  @@unique([journalEntryId, activityId])
+}
+
+model Activity {
+  id Int @id @default(autoincrement())
+  name String
+  categorie ActivityCategory?
+  description String?
+  createdAt DateTime @default(now())
+  journalActivities JournalActivity[]
+}
+
+model Message {
+  id String @id @default(uuid())
+  senderId String
+  sender User @relation("SentMessages", fields: [senderId], references: [id])
+  recipientId String
+  recipient User @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  content String
+  isRead Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Resource {
+  id String @id @default(uuid())
+  titre String
+  description String
+  type ResourceType?
+  categorie String?
+  url String
+  duree Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  favoris Favorite[]
+}
+
+model Favorite {
+  id Int @id @default(autoincrement())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  @@unique([userId, resourceId])
+}
+
+model Group {
+  id Int @id @default(autoincrement())
+  nom String
+  description String
+  categorie String?
+  groupVisibility GroupVisibility @default(PUBLIC)
+  createdById String
+  createdBy User @relation(fields: [createdById], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  groupMemberships GroupMembership[]
+  posts Post[]
+}
+
+model GroupMembership {
+  id Int @id @default(autoincrement())
+  groupId Int
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  groupMemberStatus GroupMemberStatus @default(MODERATEUR)
+  membershipStatus MembershipStatus @default(EN_ATTENTE)
+  joinedAt DateTime @default(now()) 
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  groupId Int
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  comments Comment[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  postId Int
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  
+}
+
