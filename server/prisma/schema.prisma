@@ -101,10 +101,9 @@ model User {
   journalEntries JournalEntry[]
 
   // Groupes créés
-  groupsCreated Group[]
+  groupsModerateur Group[]
   groupsMembership GroupMembership[]
   
-
   // Messagerie 
   sentMessages Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
@@ -182,7 +181,6 @@ model Resource {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   favoris Favorite[]
-  reports Report[]
 }
 
 model Favorite {
@@ -230,6 +228,7 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   comments Comment[]
+  report Report[]
 }
 
 model Comment {
@@ -247,13 +246,14 @@ model Report {
   id Int @id @default(autoincrement())
   reporterId String
   reporter User @relation(fields: [reporterId], references: [id])
-  resourceId String
-  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  postId Int
+  post Post @relation(fields: [postId], references: [id])
   reportCategory ReportCategory @default(INAPPROPRIE)
   reportStatus ReportStatus @default(EN_ATTENTE)
   raison String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
 }
 
 model RefreshToken {
