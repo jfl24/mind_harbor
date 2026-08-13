@@ -69,6 +69,15 @@ enum ResourceType {
   VIDEO
   AUDIO
   EXERCICE
+  FICHE
+}
+
+enum ResourceCategory {
+  ANXIETE
+  SOMMEIL
+  RELATIONS
+  TRAVAIL
+  DEUIL
 }
 
 model User {
@@ -106,11 +115,18 @@ model User {
   // Posts
   posts Post[]
   comments Comment[]
+
+  // Reports
+  reports Report[]
+
+  // Tokens
+  refreshTokens RefreshToken[]
 }
 
 model JournalEntry {
   id Int @id @default(autoincrement())
   userId String
+  date DateTime @db.Date
   humeur Int
   energie Int
   sommeil Int 
@@ -118,9 +134,9 @@ model JournalEntry {
   activities JournalActivity[]
   evenements String?
   gratitude String?
-  createdAt DateTime @db.Date @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@unique([userId, createdAt])
+  @@unique([userId, date])
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -157,13 +173,14 @@ model Resource {
   id String @id @default(uuid())
   titre String
   description String
-  type ResourceType?
-  categorie String?
+  type ResourceType
+  categorie ResourceCategory
   url String
-  duree Int?
+  duree Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   favoris Favorite[]
+  reports Report[]
 }
 
 model Favorite {
@@ -179,10 +196,11 @@ model Group {
   id Int @id @default(autoincrement())
   nom String
   description String
-  categorie String?
+  thematique String?
+  regles String?
   groupVisibility GroupVisibility @default(PUBLIC)
-  createdById String
-  createdBy User @relation(fields: [createdById], references: [id])
+  moderateurId String
+  moderateur User @relation(fields: [moderateurId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   groupMemberships GroupMembership[]
@@ -195,7 +213,7 @@ model GroupMembership {
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   userId String
   user User @relation(fields: [userId], references: [id])
-  groupMemberStatus GroupMemberStatus @default(MODERATEUR)
+  groupMemberStatus GroupMemberStatus @default(MEMBRE)
   membershipStatus MembershipStatus @default(EN_ATTENTE)
   joinedAt DateTime @default(now()) 
 }
@@ -218,6 +236,31 @@ model Comment {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   userId String
   user User @relation(fields: [userId], references: [id])
-  
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+model Report {
+  id Int @id @default(autoincrement())
+  reporterId String
+  reporter User @relation(fields: [reporterId], references: [id])
+  resourceId String
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  reportCategory ReportCategory @default(INAPPROPRIE)
+  reportStatus ReportStatus @default(EN_ATTENTE)
+  raison String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+  token String @unique
+  expiresAt DateTime
+  revoked Boolean @default(false)
+  createdAt DateTime @default(now())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
