@@ -121,6 +121,8 @@ model User {
 
   // Tokens
   refreshTokens RefreshToken[]
+
+  userBlocked String[]
 }
 
 model JournalEntry {
