@@ -5,7 +5,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { buildMeta, parsePagination } from "../../utils/paginate.js";
 
 // La fonction pour poster un entreée dans son propre journal
-async function creerJournalEntry(
+export async function creerJournalEntry(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -71,7 +71,7 @@ async function creerJournalEntry(
 }
 
 // La fonction pour qu'un utilisateur GET ses entrées de journal
-async function getJournalEntry(
+export async function getJournalEntry(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -113,7 +113,7 @@ async function getJournalEntry(
 }
 
 // La fonction pour chercher une entrée de journal par date
-async function getJournalEntryByDate(
+export async function getJournalEntryByDate(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -152,7 +152,7 @@ async function getJournalEntryByDate(
 }
 
 // La fonction pour modifier une entrée dans le journal
-async function modifyJournalEntry(
+export async function modifyJournalEntry(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -248,7 +248,7 @@ async function modifyJournalEntry(
 }
 
 // La fonction pour chercher les statistiques sur les entrées de journal
-async function getJournalEntryWithRange(
+export async function getJournalEntryWithRange(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -312,6 +312,200 @@ async function getJournalEntryWithRange(
     }
 
     return res.status(200).json({ averages, entrees: journalEntries });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// La fonction pour calculer les statistiques par jour de la semaine
+export async function getAveragesByDay(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const day = req.query.day;
+  const userId = req.user?.id;
+
+  const DAYS_MAP: Record<string, number> = {
+    dimanche: 0,
+    sunday: 0,
+    lundi: 1,
+    monday: 1,
+    mardi: 2,
+    tuesday: 2,
+    mercredi: 3,
+    wednesday: 3,
+    jeudi: 4,
+    thursday: 4,
+    vendredi: 5,
+    friday: 5,
+    samedi: 6,
+    saturday: 6,
+  };
+
+  const dayClean = (req.query.day as string)?.toLowerCase().trim();
+
+  if (!userId) {
+    return res.status(401).json({ message: "Assurez-vous d'être connecté !" });
+  }
+
+  if (!day) {
+    return res
+      .status(400)
+      .json({ erreur: "La journée de la  n'a pas été donnée." });
+  }
+
+  if (dayClean && !(dayClean in DAYS_MAP)) {
+    return res.status(400).json({
+      message: "Ce jour n'est pas un jour de la semaine valide.",
+    });
+  }
+
+  const dayNumber = DAYS_MAP[dayClean];
+
+  // Pour trouver les entrées du user avec la date
+  const userEntries = await prisma.journalEntry.findMany({
+    where: { userId },
+    select: { id: true, date: true },
+  });
+
+  // Pour trouver les id des entrées qui sont de la bonne journée
+  const matchingIds = userEntries
+    .filter((entry) => entry.date.getUTCDay() === dayNumber)
+    .map((entry) => entry.id);
+  // Pour filtrer à partir d'une journée
+  try {
+    const moyennes = await prisma.journalEntry.aggregate({
+      where: { id: { in: matchingIds } },
+      _avg: {
+        humeur: true,
+        energie: true,
+        sommeil: true,
+        anxiete: true,
+      },
+    });
+
+    // Pour formater les données envoyées par Prisma
+    const averages = {
+      humeur: moyennes._avg.humeur
+        ? Number(moyennes._avg.humeur.toFixed(2))
+        : 0,
+      energie: moyennes._avg.energie
+        ? Number(moyennes._avg.energie.toFixed(2))
+        : 0,
+      sommeil: moyennes._avg.sommeil
+        ? Number(moyennes._avg.sommeil.toFixed(2))
+        : 0,
+      anxiete: moyennes._avg.anxiete
+        ? Number(moyennes._avg.anxiete.toFixed(2))
+        : 0,
+    };
+
+    if (!moyennes) {
+      return res
+        .status(404)
+        .json({ erreur: "Aucune moyenne trouvée avec cette journée." });
+    }
+
+    return res.status(200).json(averages);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// La fonction pour voir la corrélation entre une activité et l'anxiété
+export async function getInsights(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { activite } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Assurez-vous d'être connecté !" });
+  }
+
+  if (!activite) {
+    return res
+      .status(400)
+      .json({ erreur: "La requête a des éléments manquants." });
+  }
+
+  try {
+    const activiteId = await prisma.activity.findFirst({
+      where: { name: String(activite) },
+      select: { id: true },
+    });
+
+    if (!activiteId) {
+      return res.status(404).json({ message: "Oups! Activité introuvable." });
+    }
+
+    const moyenneAvecActivite = await prisma.journalEntry.aggregate({
+      where: {
+        userId,
+        activities: {
+          some: {
+            activityId: activiteId.id,
+          },
+        },
+      },
+      _avg: {
+        anxiete: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const moyenneSansActivite = await prisma.journalEntry.aggregate({
+      where: {
+        userId,
+        activities: {
+          none: {
+            activityId: activiteId.id,
+          },
+        },
+      },
+      _avg: {
+        anxiete: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    if (
+      moyenneSansActivite._count._all < 5 ||
+      moyenneAvecActivite._count._all < 5
+    ) {
+      return res.status(400).json({
+        message:
+          "Le nombre d'entrées est trop petit pour dégager une tendance.",
+      });
+    }
+
+    const avecActivite = moyenneAvecActivite._avg.anxiete ?? 0;
+    const sansActivite = moyenneSansActivite._avg.anxiete ?? 0;
+
+    if (avecActivite === 0 || sansActivite === 0) {
+      return res
+        .status(400)
+        .json({ message: "On ne peut pas diviser par zéro." });
+    }
+
+    if (avecActivite > sansActivite) {
+      const augmentation = ((avecActivite - sansActivite) / sansActivite) * 100;
+      return res.status(200).json({
+        message: `Les jours où vous ne notez pas l'activité ${activite}, votre anxiété est en moyenne ${augmentation.toFixed(1)} % plus basse`,
+      });
+    } else {
+      const augmentation = ((sansActivite - avecActivite) / avecActivite) * 100;
+      return res.status(200).json({
+        message: `Les jours où vous notez l'activité ${activite}, votre anxiété est en moyenne ${augmentation.toFixed(1)} % plus basse`,
+      });
+    }
   } catch (error) {
     next(error);
   }
