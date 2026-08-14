@@ -95,19 +95,19 @@ model User {
   suspended Boolean @default(false)
   autoriseMessages Boolean @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  
+  updatedAt DateTime @default(now()) @updatedAt
+
   // Journal
   journalEntries JournalEntry[]
 
   // Groupes créés
   groupsModerateur Group[]
   groupsMembership GroupMembership[]
-  
+
   // Messagerie 
   sentMessages Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
-  
+
   // Ressources favorites
   favorites Favorite[]
 
@@ -252,17 +252,18 @@ model Report {
   reportStatus ReportStatus @default(EN_ATTENTE)
   raison String?
   createdAt DateTime @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  
+  updatedAt DateTime @default(now()) @updatedAt
+
 }
 
 model RefreshToken {
   id String @id @default(uuid())
   token String @unique
-  expiresAt DateTime
+  expiresAt DateTime @db.Date
   revoked Boolean @default(false)
   createdAt DateTime @default(now())
   userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
 }
+ 

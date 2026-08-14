@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
-import prisma from "../../lib/prisma.js";
 import { Prisma } from "../../../generated/prisma/client.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { buildMeta, parsePagination } from "../../utils/paginate.js";
+import * as journalService from "../../services/journalService.js";
 
 // La fonction pour poster un entreée dans son propre journal
 export async function creerJournalEntry(
@@ -35,28 +35,17 @@ export async function creerJournalEntry(
         .json({ message: "Oups!  Des champs requis n'ont pas été remplis" });
     }
 
-    const newJournalEntry = await prisma.journalEntry.create({
-      data: {
-        userId,
-        date: new Date(date),
-        humeur,
-        energie,
-        sommeil,
-        anxiete,
-        evenements,
-        gratitude,
-        activities: {
-          create: activities.map((activityId: number) => ({
-            activityId: activityId,
-          })),
-        },
-      },
-      include: {
-        activities: {
-          include: { activity: true },
-        },
-      },
+    const newJournalEntry = await journalService.creerEntry(userId, {
+      date,
+      humeur,
+      energie,
+      sommeil,
+      anxiete,
+      activities,
+      evenements,
+      gratitude,
     });
+
     return res.status(201).json(newJournalEntry);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -86,20 +75,12 @@ export async function getJournalEntry(
   try {
     const { page, limit, skip, take } = parsePagination(req.query);
 
-    const [total, journalEntries] = await Promise.all([
-      prisma.journalEntry.count({ where: { userId } }),
-      prisma.journalEntry.findMany({
-        where: { userId },
-        orderBy: { date: order },
-        skip,
-        take,
-        include: {
-          activities: {
-            include: { activity: true },
-          },
-        },
-      }),
-    ]);
+    const [total, journalEntries] = await journalService.getEntries(
+      userId,
+      order,
+      skip,
+      take,
+    );
 
     const meta = buildMeta(page, limit, total);
 
@@ -130,14 +111,10 @@ export async function getJournalEntryByDate(
   }
 
   try {
-    const journalEntry = await prisma.journalEntry.findUnique({
-      where: {
-        userId_date: {
-          userId: userId,
-          date: new Date(String(date)),
-        },
-      },
-    });
+    const journalEntry = await journalService.getEntryDate(
+      userId,
+      String(date),
+    );
 
     if (!journalEntry) {
       return res
@@ -180,14 +157,13 @@ export async function modifyJournalEntry(
   try {
     const entryDate = new Date(String(dateParam));
 
-    const existingEntry = await prisma.journalEntry.findUnique({
-      where: {
-        userId_date: {
-          userId: userId,
-          date: entryDate,
-        },
-      },
-    });
+    if (isNaN(entryDate.getTime())) {
+      return res
+        .status(400)
+        .json({ erreur: "Le format de la date est invalide." });
+    }
+
+    const existingEntry = await journalService.findEntry(userId, entryDate);
 
     if (!existingEntry) {
       return res.status(404).json({
@@ -209,31 +185,19 @@ export async function modifyJournalEntry(
       });
     }
 
-    const updatedEntry = await prisma.journalEntry.update({
-      where: { id: existingEntry.id },
-      data: {
-        humeur,
-        energie,
-        sommeil,
-        anxiete,
-        evenements,
-        gratitude,
-        ...(activities &&
-          Array.isArray(activities) && {
-            activities: {
-              create: activities.map((activityId: number) => ({
-                activityId,
-              })),
-            },
-          }),
-      },
-      include: {
-        // pour obtenir le détail des activités présentes dans le journal Entry
-        activities: {
-          include: { activity: true },
-        },
-      },
-    });
+    const idEntree = existingEntry.id;
+
+    const updatedEntry = await journalService.modifyEntry(
+      idEntree,
+      humeur,
+      energie,
+      sommeil,
+      anxiete,
+      activities,
+      evenements,
+      gratitude,
+    );
+
     return res.status(200).json(updatedEntry);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -266,6 +230,12 @@ export async function getJournalEntryWithRange(
 
   const rangeClean = parseInt(String(range), 10); // Pour obtenir seulement le chiffre dans le query
 
+  if (isNaN(rangeClean) || rangeClean <= 0) {
+    return res.status(400).json({
+      erreur: "Attention.  La période doit être un chiffre supérieur à 0.",
+    });
+  }
+
   const now = new Date();
 
   const dateDebut = new Date(now);
@@ -273,21 +243,10 @@ export async function getJournalEntryWithRange(
   dateDebut.setUTCDate(dateDebut.getUTCDate() - rangeClean); // Pour filtrer à partir d'une date
 
   try {
-    const [journalEntries, aggregates] = await Promise.all([
-      prisma.journalEntry.findMany({
-        where: { userId, date: { gte: dateDebut } },
-        orderBy: { date: "asc" },
-      }),
-      prisma.journalEntry.aggregate({
-        where: { userId, date: { gte: dateDebut } },
-        _avg: {
-          humeur: true,
-          energie: true,
-          sommeil: true,
-          anxiete: true,
-        },
-      }),
-    ]);
+    const { journalEntries, aggregates } = await journalService.getEntrieRange(
+      userId,
+      dateDebut,
+    );
 
     // Pour formater les données envoyées par Prisma
     const averages = {
@@ -305,7 +264,7 @@ export async function getJournalEntryWithRange(
         : 0,
     };
 
-    if (!journalEntries) {
+    if (journalEntries.length === 0) {
       return res
         .status(404)
         .json({ erreur: "Aucune entrée trouvée dans cette plage." });
@@ -364,10 +323,7 @@ export async function getAveragesByDay(
   const dayNumber = DAYS_MAP[dayClean];
 
   // Pour trouver les entrées du user avec la date
-  const userEntries = await prisma.journalEntry.findMany({
-    where: { userId },
-    select: { id: true, date: true },
-  });
+  const userEntries = await journalService.getEnriesByDay(userId);
 
   // Pour trouver les id des entrées qui sont de la bonne journée
   const matchingIds = userEntries
@@ -375,15 +331,7 @@ export async function getAveragesByDay(
     .map((entry) => entry.id);
   // Pour filtrer à partir d'une journée
   try {
-    const moyennes = await prisma.journalEntry.aggregate({
-      where: { id: { in: matchingIds } },
-      _avg: {
-        humeur: true,
-        energie: true,
-        sommeil: true,
-        anxiete: true,
-      },
-    });
+    const moyennes = await journalService.moyennesParJour(matchingIds);
 
     // Pour formater les données envoyées par Prisma
     const averages = {
@@ -433,48 +381,23 @@ export async function getInsights(
   }
 
   try {
-    const activiteId = await prisma.activity.findFirst({
-      where: { name: String(activite) },
-      select: { id: true },
-    });
+    const activiteId = await journalService.getActivityId(activite);
 
     if (!activiteId) {
       return res.status(404).json({ message: "Oups! Activité introuvable." });
     }
 
-    const moyenneAvecActivite = await prisma.journalEntry.aggregate({
-      where: {
-        userId,
-        activities: {
-          some: {
-            activityId: activiteId.id,
-          },
-        },
-      },
-      _avg: {
-        anxiete: true,
-      },
-      _count: {
-        _all: true,
-      },
-    });
+    const IdActivity = activiteId.id;
 
-    const moyenneSansActivite = await prisma.journalEntry.aggregate({
-      where: {
-        userId,
-        activities: {
-          none: {
-            activityId: activiteId.id,
-          },
-        },
-      },
-      _avg: {
-        anxiete: true,
-      },
-      _count: {
-        _all: true,
-      },
-    });
+    const moyenneAvecActivite = await journalService.moyenneWithActivity(
+      userId,
+      IdActivity,
+    );
+
+    const moyenneSansActivite = await journalService.moyenneWithoutActivity(
+      userId,
+      IdActivity,
+    );
 
     if (
       moyenneSansActivite._count._all < 5 ||
