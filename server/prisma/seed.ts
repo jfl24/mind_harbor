@@ -1,5 +1,3 @@
-import { PrismaClient } from "../generated/prisma/client.js";
-
 import {
   Role,
   GroupVisibility,
