@@ -259,7 +259,7 @@ model Report {
 model RefreshToken {
   id String @id @default(uuid())
   token String @unique
-  expiresAt DateTime
+  expiresAt DateTime @db.Date
   revoked Boolean @default(false)
   createdAt DateTime @default(now())
   userId String
