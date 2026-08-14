@@ -95,7 +95,7 @@ model User {
   suspended Boolean @default(false)
   autoriseMessages Boolean @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   
   // Journal
   journalEntries JournalEntry[]
@@ -136,7 +136,7 @@ model JournalEntry {
   evenements String?
   gratitude String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   @@unique([userId, date])
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -179,7 +179,7 @@ model Resource {
   url String
   duree Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   favoris Favorite[]
 }
 
@@ -202,7 +202,7 @@ model Group {
   moderateurId String
   moderateur User @relation(fields: [moderateurId], references: [id])
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   groupMemberships GroupMembership[]
   posts Post[]
 }
@@ -226,7 +226,7 @@ model Post {
   user User @relation(fields: [userId], references: [id])
   content String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   comments Comment[]
   report Report[]
 }
@@ -239,7 +239,7 @@ model Comment {
   user User @relation(fields: [userId], references: [id])
   content String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Report {
@@ -252,7 +252,7 @@ model Report {
   reportStatus ReportStatus @default(EN_ATTENTE)
   raison String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
   
 }
 

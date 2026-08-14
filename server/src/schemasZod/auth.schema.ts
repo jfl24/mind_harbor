@@ -3,8 +3,8 @@ import { Role } from '../../generated/prisma/enums.js';
 
 // Route POST /auth/register
 export const regSchema = z.object({
-    courriel: z.email("Format du courriel invalide."),
-    motDePasse: z
+    email: z.email("Format du courriel invalide."),
+    passwordHash: z
         .string()
         .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
         .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
@@ -19,8 +19,8 @@ export type RegisterType = z.infer<typeof regSchema>
 
 // Route POST /auth/login
 export const loginSchema = z.object({
-    courriel: z.email("Format du courriel invalide."),
-    motDePasse: z
+    email: z.email("Format du courriel invalide."),
+    passwordHash: z
         .string()
         .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
         .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
@@ -38,7 +38,7 @@ export type TokenType = z.infer<typeof tokenSchema>
 // Route GET /auth/me
 export const userSchema = z.object({
     id: z.uuid('Format ID invalide.'),
-    courriel: z.email('Format du courriel invalide.'),
+    email: z.email('Format du courriel invalide.'),
     nom: z.string('Format du nom invalide.').optional(),
     prenom: z.string('Format du nom invalide.').optional(),
     role: z.enum(Role)

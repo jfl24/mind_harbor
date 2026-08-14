@@ -1,5 +1,8 @@
 import express from 'express';
+
 import authRouter from './routes/auth.routes.js'
+
+import { errorHandler } from './middlewares/error.js';
 
 const app = express();
 
@@ -14,6 +17,6 @@ app.use('/api/v1/auth', authRouter);
 app.use((_req, res) => {
 res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route introuvable.' } });
 });
-//app.use(errorHandler);
+app.use(errorHandler);
 
 export default app;
