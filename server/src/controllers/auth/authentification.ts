@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 async function authInscription(req: Request, res: Response) {
-    
+    res.status(200).json({message:"Tres bien"})
 }
 
 async function authConnexion(req: Request, res: Response) {
@@ -31,7 +31,6 @@ async function authProfileUtilisateur(req: Request, res: Response) {
   "role": "editor",
   "permissions": ["create_post", "edit_post"]
         }*/
-    res.status(200).json({message:"ok"})
 }
 
 export { authConnexion, authInscription, authDeconnexion, authRafraichir, authProfileUtilisateur }
