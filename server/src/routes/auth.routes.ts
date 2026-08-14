@@ -1,9 +1,10 @@
-import { Router } from "express"
+import { Router, type NextFunction } from "express"
 
 import { validateBody } from "../middlewares/validate.js";
 import * as authZodSchemas from "../schemasZod/auth.schema.js";
 
 import * as authControllers from '../controllers/auth/authentification.js'
+import { requireAuth, requireRole } from "../middlewares/auth.js";
 
 const authRouter = Router()
 
