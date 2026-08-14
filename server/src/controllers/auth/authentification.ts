@@ -83,7 +83,7 @@ async function authConnexion(req: Request, res: Response, next: NextFunction) {
 
         return res.status(201).json({
             "succes":true,
-            "data": tokenAcces,
+            "data": { "tokenAcces": tokenAcces, "tokenRefresh": tokenRefresh },
             "message": "Authentification réussi!."
         })
 
@@ -101,14 +101,72 @@ async function authConnexion(req: Request, res: Response, next: NextFunction) {
 }
 
 
+async function authRafraichir(req: Request, res: Response, next: NextFunction) {
+    
+    try {
+        const tokenExistant = await prisma.refreshToken.findUnique({
+            where: { token: req.body.refreshToken },
+        })
 
+        if(!tokenExistant) { return next(new AppError(404, 'LOGIN_ERROR', 'Échec de d\'authentification.  Token introuvable.')) }
 
-async function authRafraichir(req: Request, res: Response) {
+        jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET!)
 
+        const user = await prisma.user.findUnique({
+            where:{ id: tokenExistant.userId }
+        })
+
+        const tokenAcces = jwt.sign(
+            { sub: user!.id, role: user!.role },
+            process.env.JWT_SECRET!,
+            { expiresIn: "15m" },
+        );
+
+        const tokenRefresh = jwt.sign(
+            { sub: user!.id, role: user!.role },
+            process.env.JWT_REFRESH_SECRET!,
+            { expiresIn: "7d"}
+        )
+
+        const expiration = new Date();
+        expiration.setHours(0,0,0,0)
+        expiration.setDate(expiration.getDate() + 7);
+
+        await prisma.$transaction([
+            prisma.refreshToken.delete({ where: { token: req.body.refreshToken } }),
+            prisma.refreshToken.create({ data: { userId: user!.id, expiresAt: expiration,token: tokenRefresh } })
+        ])
+
+        return res.status(200).json({
+            "succes":true,
+            "data": { "tokenAcces": tokenAcces, "tokenRefresh": tokenRefresh }
+        })
+
+        } catch (error) {
+            if ((error as any).name === 'TokenExpiredError') {
+                return next(new AppError(400, 'LOGIN_ERROR', 'Échec de connexion.  Veuillez vous reconnecter.'))
+            }
+        }
+    
 }
 
-async function authDeconnexion(req: Request, res: Response) {
-
+async function authDeconnexion(req: Request, res: Response, next: NextFunction) {
+    
+    try {
+        await prisma.refreshToken.delete({
+            where: { token: req.body.refreshToken}
+        })
+        return res.status(200).json({
+            "succes": true,
+            "data":[],
+            "message":"Déconnexion réussi."
+        })
+    } catch (error) {
+        if(error instanceof PrismaClientKnownRequestError) {
+            return next(new AppError(401, 'LOGIN_ERROR', 'Échec de déconnexion.'));
+        }
+        return next(new AppError(500, 'UNKNOWN_ERROR', 'Une erreur interne est survenue.'));
+    }
 }
 
 async function authProfileUtilisateur(req: Request, res: Response) {

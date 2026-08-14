@@ -29,6 +29,11 @@ export const loginSchema = z.object({
 export type LoginType = z.infer<typeof loginSchema>
 
 // Route POST /auth/refresh
+export const refreshTokenSchema = z.object({
+    refreshToken: z.jwt("Veuillez vous connectez à votre compte.")
+})
+export type RefreshTokenType = z.infer<typeof refreshTokenSchema>
+
 // Route POST /auth/logout
 export const tokenSchema = z.object({
     token: z.jwt("Veuillez vous connectez à votre compte.")
