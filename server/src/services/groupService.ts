@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import { AppError } from "../middlewares/error.js";
 
 //-----------------------------------------------------
 // Lister les groupes
@@ -137,9 +138,10 @@ export async function groupeParId(id: number) {
 // Rejoindre un groupe
 // ========================================================
 
-export async function rejoindreGroupe(groupId: number,userId: string) {
-
-    // Vérifier que le groupe existe
+export async function rejoindreGroupe(
+    groupId: number,
+    userId: string
+) {
     const groupe = await prisma.group.findUnique({
         where: {
             id: groupId,
@@ -147,10 +149,13 @@ export async function rejoindreGroupe(groupId: number,userId: string) {
     });
 
     if (!groupe) {
-        throw new Error("Groupe introuvable.");
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Groupe introuvable."
+        );
     }
 
-    // Vérifier si l'utilisateur a déjà une demande
     const demandeExistante =
         await prisma.groupMembership.findFirst({
             where: {
@@ -160,13 +165,13 @@ export async function rejoindreGroupe(groupId: number,userId: string) {
         });
 
     if (demandeExistante) {
-        throw new Error(
+        throw new AppError(
+            409,
+            "ALREADY_MEMBER",
             "Vous avez déjà demandé à rejoindre ce groupe."
         );
     }
 
-    // Groupe public : accepté directement
-    // Groupe privé : demande en attente
     const statut =
         groupe.groupVisibility === "PUBLIC"
             ? "ACCEPTEE"
@@ -230,21 +235,23 @@ export async function traiterDemande(
     requestId: number,
     decision: "ACCEPTEE" | "REFUSEE"
 ) {
-
-    // Vérifier que la demande appartient bien au groupe
-    const demande = await prisma.groupMembership.findFirst({
-        where: {
-            id: requestId,
-            groupId,
-            membershipStatus: "EN_ATTENTE",
-        },
-    });
+    const demande =
+        await prisma.groupMembership.findFirst({
+            where: {
+                id: requestId,
+                groupId,
+                membershipStatus: "EN_ATTENTE",
+            },
+        });
 
     if (!demande) {
-        throw new Error("Demande introuvable.");
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Demande introuvable."
+        );
     }
 
-    // Modifier le statut de la demande
     const demandeModifiee =
         await prisma.groupMembership.update({
             where: {
@@ -266,21 +273,23 @@ export async function retirerMembre(
     groupId: number,
     userId: string
 ) {
-
-    // Vérifier que l'utilisateur est membre du groupe
-    const membre = await prisma.groupMembership.findFirst({
-        where: {
-            groupId,
-            userId,
-            membershipStatus: "ACCEPTEE",
-        },
-    });
+    const membre =
+        await prisma.groupMembership.findFirst({
+            where: {
+                groupId,
+                userId,
+                membershipStatus: "ACCEPTEE",
+            },
+        });
 
     if (!membre) {
-        throw new Error("Membre introuvable dans ce groupe.");
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Membre introuvable dans ce groupe."
+        );
     }
 
-    // Supprimer l'adhésion
     await prisma.groupMembership.delete({
         where: {
             id: membre.id,
@@ -340,11 +349,8 @@ export async function creerPost(
     userId: string,
     content: string
 ) {
-
-    // Vérifier que l'utilisateur est membre du groupe
     const membre =
         await prisma.groupMembership.findFirst({
-
             where: {
                 groupId,
                 userId,
@@ -353,15 +359,14 @@ export async function creerPost(
         });
 
     if (!membre) {
-
-        throw new Error(
+        throw new AppError(
+            403,
+            "NOT_MEMBER",
             "L'utilisateur n'est pas membre de ce groupe."
         );
     }
 
-    // Créer la publication
     const post = await prisma.post.create({
-
         data: {
             groupId,
             userId,
@@ -383,4 +388,3 @@ export async function creerPost(
 
     return post;
 }
-

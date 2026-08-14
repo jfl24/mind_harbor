@@ -1,11 +1,14 @@
 import { Router } from "express";
-import * as groupControlleur from "../controllers/groups/groupController.js";
+
+import * as groupController from "../controllers/groups/groupController.js";
+
+import { requireAuth } from "../middlewares/auth.js";
+import { validateBody } from "../middlewares/validate.js";
+
+import * as groupZodSchemas from "../schemasZod/group.schema.js";
 
 const groupRouter = Router();
 
-// --------------------------------------------------------
-// GROUPES DE SOUTIEN
-// --------------------------------------------------------
 
 // --------------------------------------------------------
 // Lister / rechercher les groupes
@@ -15,8 +18,9 @@ const groupRouter = Router();
 
 groupRouter.get(
     "/",
-    groupControlleur.listerGroupes
+    groupController.listerGroupes
 );
+
 
 // --------------------------------------------------------
 // Créer un groupe
@@ -26,8 +30,11 @@ groupRouter.get(
 
 groupRouter.post(
     "/",
-    groupControlleur.creerGroupe
+    requireAuth,
+    validateBody(groupZodSchemas.createGroupSchema),
+    groupController.creerGroupe
 );
+
 
 // --------------------------------------------------------
 // Voir un groupe
@@ -37,8 +44,9 @@ groupRouter.post(
 
 groupRouter.get(
     "/:id",
-    groupControlleur.groupeParId
+    groupController.groupeParId
 );
+
 
 // --------------------------------------------------------
 // Rejoindre un groupe
@@ -48,8 +56,10 @@ groupRouter.get(
 
 groupRouter.post(
     "/:id/join",
-    groupControlleur.rejoindreGroupe
+    requireAuth,
+    groupController.rejoindreGroupe
 );
+
 
 // --------------------------------------------------------
 // Voir les demandes d'adhésion
@@ -59,8 +69,10 @@ groupRouter.post(
 
 groupRouter.get(
     "/:id/requests",
-    groupControlleur.listerDemandes
+    requireAuth,
+    groupController.listerDemandes
 );
+
 
 // --------------------------------------------------------
 // Accepter / refuser une demande
@@ -70,8 +82,11 @@ groupRouter.get(
 
 groupRouter.patch(
     "/:id/requests/:requestId",
-    groupControlleur.traiterDemande
+    requireAuth,
+    validateBody(groupZodSchemas.traiterDemandeSchema),
+    groupController.traiterDemande
 );
+
 
 // --------------------------------------------------------
 // Retirer un membre
@@ -81,8 +96,10 @@ groupRouter.patch(
 
 groupRouter.delete(
     "/:id/members/:userId",
-    groupControlleur.retirerMembre
+    requireAuth,
+    groupController.retirerMembre
 );
+
 
 // --------------------------------------------------------
 // Lister les publications d'un groupe
@@ -92,8 +109,10 @@ groupRouter.delete(
 
 groupRouter.get(
     "/:id/posts",
-    groupControlleur.listerPosts
+    requireAuth,
+    groupController.listerPosts
 );
+
 
 // --------------------------------------------------------
 // Créer une publication dans un groupe
@@ -103,8 +122,10 @@ groupRouter.get(
 
 groupRouter.post(
     "/:id/posts",
-    groupControlleur.creerPost
+    requireAuth,
+    validateBody(groupZodSchemas.createPostSchema),
+    groupController.creerPost
 );
 
-export default groupRouter;
 
+export default groupRouter;

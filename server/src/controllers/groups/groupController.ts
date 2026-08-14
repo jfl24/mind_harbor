@@ -1,10 +1,21 @@
-import { type Request, type Response } from "express";
+import {
+    type Request,
+    type Response,
+    type NextFunction
+} from "express";
+
 import * as groupService from "../../services/groupService.js";
+
+import { AppError } from "../../middlewares/error.js";
 
 
 //----------------- Lister les groupes---------------------------//
 
-export async function listerGroupes(req: Request,res: Response) {
+export async function listerGroupes(
+    req: Request,
+    res: Response,
+    next: NextFunction
+)  {
 
     try {
 
@@ -17,20 +28,19 @@ export async function listerGroupes(req: Request,res: Response) {
         return res.status(200).json(groupes);
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
 // ----------------- Créer un groupe ----------------------------- //
-
-export async function creerGroupe(req: Request,res: Response) {
-
+export async function creerGroupe(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
+
+        const userId = req.user!.id;
 
         const {
             nom,
@@ -38,16 +48,7 @@ export async function creerGroupe(req: Request,res: Response) {
             thematique,
             regles,
             groupVisibility,
-            userId,
         } = req.body;
-
-        if (!nom || !description || !userId) {
-
-            return res.status(400).json({
-                message:
-                    "Le nom, la description et l'utilisateur sont obligatoires.",
-            });
-        }
 
         const groupe =
             await groupService.creerGroupe(
@@ -67,49 +68,48 @@ export async function creerGroupe(req: Request,res: Response) {
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
 //------------ Obtenir un groupe par son ID ---------------//
 
-export async function groupeParId(req: Request,res: Response) {
-
+export async function groupeParId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
 
         const id = Number(req.params.id);
 
         if (isNaN(id)) {
-
-            return res.status(400).json({
-                message: "Identifiant du groupe invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant du groupe invalide."
+                )
+            );
         }
 
         const groupe =
             await groupService.groupeParId(id);
 
         if (!groupe) {
-
-            return res.status(404).json({
-                message: "Groupe introuvable.",
-            });
+            return next(
+                new AppError(
+                    404,
+                    "NOT_FOUND",
+                    "Groupe introuvable."
+                )
+            );
         }
 
         return res.status(200).json(groupe);
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -118,29 +118,26 @@ export async function groupeParId(req: Request,res: Response) {
 // POST /groups/:id/join
 // ========================================================
 
-export async function rejoindreGroupe(req: Request,res: Response) {
-
+export async function rejoindreGroupe(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
 
         const groupId = Number(req.params.id);
 
         if (isNaN(groupId)) {
-
-            return res.status(400).json({
-                message: "Identifiant du groupe invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant du groupe invalide."
+                )
+            );
         }
 
-        // TEMPORAIRE :
-        // sera remplacé par req.user.id avec le JWT.
-        const userId = req.body.userId;
-
-        if (!userId) {
-
-            return res.status(400).json({
-                message: "Utilisateur obligatoire.",
-            });
-        }
+        const userId = req.user!.id;
 
         const membership =
             await groupService.rejoindreGroupe(
@@ -154,31 +151,31 @@ export async function rejoindreGroupe(req: Request,res: Response) {
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
-
 // ========================================================
 // Lister les demandes d'adhésion
 // GET /groups/:id/requests
 // ========================================================
 
-export async function listerDemandes(req: Request,res: Response) {
-
+export async function listerDemandes(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
 
         const groupId = Number(req.params.id);
 
         if (isNaN(groupId)) {
-
-            return res.status(400).json({
-                message: "Identifiant du groupe invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant du groupe invalide."
+                )
+            );
         }
 
         const demandes =
@@ -187,12 +184,7 @@ export async function listerDemandes(req: Request,res: Response) {
         return res.status(200).json(demandes);
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -201,32 +193,27 @@ export async function listerDemandes(req: Request,res: Response) {
 // PATCH /groups/:id/requests/:requestId
 // ========================================================
 
-export async function traiterDemande(req: Request,res: Response) {
-
+export async function traiterDemande(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     try {
 
         const groupId = Number(req.params.id);
         const requestId = Number(req.params.requestId);
 
-        const { decision } = req.body;
-
         if (isNaN(groupId) || isNaN(requestId)) {
-
-            return res.status(400).json({
-                message: "Identifiant invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant invalide."
+                )
+            );
         }
 
-        if (
-            decision !== "ACCEPTEE" &&
-            decision !== "REFUSEE"
-        ) {
-
-            return res.status(400).json({
-                message:
-                    "La décision doit être ACCEPTEE ou REFUSEE.",
-            });
-        }
+        const { decision } = req.body;
 
         const demande =
             await groupService.traiterDemande(
@@ -241,12 +228,7 @@ export async function traiterDemande(req: Request,res: Response) {
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -257,18 +239,22 @@ export async function traiterDemande(req: Request,res: Response) {
 
 export async function retirerMembre(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) {
-
     try {
 
         const groupId = Number(req.params.id);
         const userId = req.params.userId as string;
-        if (isNaN(groupId) || !userId) {
 
-            return res.status(400).json({
-                message: "Identifiant invalide.",
-            });
+        if (isNaN(groupId) || !userId) {
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant invalide."
+                )
+            );
         }
 
         await groupService.retirerMembre(
@@ -281,12 +267,7 @@ export async function retirerMembre(
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -297,18 +278,21 @@ export async function retirerMembre(
 
 export async function listerPosts(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) {
-
     try {
 
         const groupId = Number(req.params.id);
 
         if (isNaN(groupId)) {
-
-            return res.status(400).json({
-                message: "Identifiant du groupe invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant du groupe invalide."
+                )
+            );
         }
 
         const posts =
@@ -317,12 +301,7 @@ export async function listerPosts(
         return res.status(200).json(posts);
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -333,33 +312,25 @@ export async function listerPosts(
 
 export async function creerPost(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) {
-
     try {
 
         const groupId = Number(req.params.id);
 
-        // TEMPORAIRE :
-        // sera remplacé par req.user.id avec le JWT.
-        const userId = req.body.userId;
-
-        const { content } = req.body;
-
         if (isNaN(groupId)) {
-
-            return res.status(400).json({
-                message: "Identifiant du groupe invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant du groupe invalide."
+                )
+            );
         }
 
-        if (!userId || !content) {
-
-            return res.status(400).json({
-                message:
-                    "L'utilisateur et le contenu sont obligatoires.",
-            });
-        }
+        const userId = req.user!.id;
+        const { content } = req.body;
 
         const post =
             await groupService.creerPost(
@@ -374,15 +345,7 @@ export async function creerPost(
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
-
-
-
 
