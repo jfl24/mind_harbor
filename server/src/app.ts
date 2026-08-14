@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import journalRoutes from "./routes/journal.routes.js";
+import activitiesRoutes from "./routes/activites.routes.js";
 import { errorHandler } from "./middlewares/error.js";
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(morgan("dev"));
 app.get("/api/v1/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/journal", journalRoutes);
+app.use("/api/v1/activities", activitiesRoutes);
 // ... autres routeurs
 app.use((_req, res) => {
   res
