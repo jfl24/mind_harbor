@@ -4,7 +4,7 @@ import { validateBody } from "../middlewares/validate.js";
 import * as authZodSchemas from "../schemasZod/auth.schema.js";
 
 import * as authControllers from '../controllers/auth/authentification.js'
-import { requireAuth, requireRole } from "../middlewares/auth.js";
+import { requireAuth } from "../middlewares/auth.js";
 
 const authRouter = Router()
 
@@ -14,8 +14,8 @@ authRouter.post("/login", validateBody(authZodSchemas.loginSchema), authControll
 
 authRouter.post("/refresh", validateBody(authZodSchemas.refreshTokenSchema), authControllers.authRafraichir);
 
-authRouter.post("/logout", validateBody(authZodSchemas.refreshTokenSchema), authControllers.authDeconnexion);
+authRouter.post("/logout", requireAuth, validateBody(authZodSchemas.refreshTokenSchema), authControllers.authDeconnexion);
 
-authRouter.get("/me", authControllers.authProfileUtilisateur);
+authRouter.get("/me", requireAuth, authControllers.authProfileUtilisateur);
 
 export default authRouter

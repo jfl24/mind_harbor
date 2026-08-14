@@ -4,7 +4,7 @@ import prisma from "../../lib/prisma.js";
 import { Prisma } from "../../../generated/prisma/client.js";
 import type { User } from "../../../generated/prisma/client.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { type JsonWebTokenError, type JwtPayload } from "jsonwebtoken";
 dotenv.config();
 import { AppError } from "../../middlewares/error.js";
 import { PrismaClientKnownRequestError } from "../../../generated/prisma/internal/prismaNamespace.js";
@@ -94,12 +94,11 @@ async function authConnexion(req: Request, res: Response, next: NextFunction) {
             return next(new AppError(500, 'DATABASE_ERROR', 'Erreur lors de la connexion.'))
         }
         } else if (error instanceof Prisma.PrismaClientValidationError) {
-        console.log(`Prisma error - validation error`);
-        return next(new AppError(500, 'UNKNOWN_ERROR', 'Erreur lors de la connexion.'))
+            console.log(`Prisma error - validation error`);
+            return next(new AppError(500, 'UNKNOWN_ERROR', 'Erreur lors de la connexion.'))
         }
     }
 }
-
 
 async function authRafraichir(req: Request, res: Response, next: NextFunction) {
     
@@ -143,16 +142,26 @@ async function authRafraichir(req: Request, res: Response, next: NextFunction) {
         })
 
         } catch (error) {
-            if ((error as any).name === 'TokenExpiredError') {
-                return next(new AppError(400, 'LOGIN_ERROR', 'Échec de connexion.  Veuillez vous reconnecter.'))
+            if (error instanceof PrismaClientKnownRequestError) {
+                return next(new AppError(500, 'DATABASE_ERROR', 'Une erreur interne est survenue.'));
             }
+            return next(new AppError(400, 'LOGIN_ERROR', 'Échec de connexion.  Veuillez vous reconnecter.'))
         }
     
 }
 
 async function authDeconnexion(req: Request, res: Response, next: NextFunction) {
-    
+
     try {
+
+        const refreshPayload = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET!) as JwtPayload
+
+        if (refreshPayload.sub) {
+            if (req.user!.id !== refreshPayload.sub) {
+                return next(new AppError(403, 'LOGIN_ERROR', 'Échec de déconnexion.'));
+            }
+        }
+
         await prisma.refreshToken.delete({
             where: { token: req.body.refreshToken}
         })
@@ -169,15 +178,29 @@ async function authDeconnexion(req: Request, res: Response, next: NextFunction) 
     }
 }
 
-async function authProfileUtilisateur(req: Request, res: Response) {
-    /*Ex
-        {
-  "id": "usr_8f29d10a",
-  "email": "alex@example.com",
-  "name": "Alex Rivera",
-  "role": "editor",
-  "permissions": ["create_post", "edit_post"]
-        }*/
+async function authProfileUtilisateur(req: Request, res: Response, next: NextFunction) {
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id : req.user!.id },
+            omit: { passwordHash: true }
+        })
+
+        return res.status(200).json({
+            "succes": true,
+            "data": user,
+            "message": `User id ${user?.id} récupéré avec succès.`
+        })
+    } catch(error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+            if( error.code === "P2025") {
+                return next(new AppError(404, 'LOGIN_ERROR', 'User introuvable.'));
+            } else {
+                return next(new AppError(500, 'DATABASE_ERROR', 'Une erreur interne est survenue.'));
+            }
+        }
+        return next(new AppError(500, 'UNKNOWN_ERROR', 'Une erreur interne est survenue.'));
+    }
 }
 
 export { authConnexion, authInscription, authDeconnexion, authRafraichir, authProfileUtilisateur }
