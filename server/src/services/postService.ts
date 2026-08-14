@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import { AppError } from "../middlewares/error.js";
 
 
 // ========================================================
@@ -19,7 +20,11 @@ export async function creerCommentaire(
     });
 
     if (!post) {
-        throw new Error("Publication introuvable.");
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Publication introuvable."
+        );
     }
 
     // Vérifier que l'utilisateur est membre du groupe
@@ -33,7 +38,9 @@ export async function creerCommentaire(
         });
 
     if (!membre) {
-        throw new Error(
+        throw new AppError(
+            403,
+            "NOT_MEMBER",
             "Vous devez être membre du groupe pour commenter."
         );
     }
@@ -63,6 +70,7 @@ export async function creerCommentaire(
     return commentaire;
 }
 
+
 // ========================================================
 // Supprimer une publication
 // ========================================================
@@ -80,12 +88,18 @@ export async function supprimerPost(
     });
 
     if (!post) {
-        throw new Error("Publication introuvable.");
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Publication introuvable."
+        );
     }
 
     // Vérifier que l'utilisateur est l'auteur
     if (post.userId !== userId) {
-        throw new Error(
+        throw new AppError(
+            403,
+            "FORBIDDEN",
             "Vous n'êtes pas autorisé à supprimer cette publication."
         );
     }

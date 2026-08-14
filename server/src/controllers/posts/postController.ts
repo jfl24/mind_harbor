@@ -1,6 +1,11 @@
-import { type Request, type Response } from "express";
-import * as postService from "../../services/postService.js";
+import {
+    type Request,
+    type Response,
+    type NextFunction
+} from "express";
 
+import * as postService from "../../services/postService.js";
+import { AppError } from "../../middlewares/error.js";
 
 
 // ========================================================
@@ -10,34 +15,26 @@ import * as postService from "../../services/postService.js";
 
 export async function creerCommentaire(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) {
-
     try {
 
         const postId = Number(req.params.id);
 
-        // TEMPORAIRE :
-        // sera remplacé par req.user.id avec le JWT.
-        const userId = req.body.userId;
+        if (isNaN(postId)) {
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant de publication invalide."
+                )
+            );
+        }
+
+        const userId = req.user!.id;
 
         const { content } = req.body;
-
-        if (isNaN(postId)) {
-
-            return res.status(400).json({
-                message:
-                    "Identifiant de publication invalide.",
-            });
-        }
-
-        if (!userId || !content) {
-
-            return res.status(400).json({
-                message:
-                    "L'utilisateur et le contenu sont obligatoires.",
-            });
-        }
 
         const commentaire =
             await postService.creerCommentaire(
@@ -52,12 +49,7 @@ export async function creerCommentaire(
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
 
@@ -69,31 +61,24 @@ export async function creerCommentaire(
 
 export async function supprimerPost(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
 ) {
-
     try {
 
         const postId = Number(req.params.id);
 
-        // TEMPORAIRE :
-        // sera remplacé par req.user.id avec le JWT.
-        const userId = req.body.userId;
-
         if (isNaN(postId)) {
-
-            return res.status(400).json({
-                message:
-                    "Identifiant de publication invalide.",
-            });
+            return next(
+                new AppError(
+                    400,
+                    "INVALID_ID",
+                    "Identifiant de publication invalide."
+                )
+            );
         }
 
-        if (!userId) {
-
-            return res.status(400).json({
-                message: "Utilisateur obligatoire.",
-            });
-        }
+        const userId = req.user!.id;
 
         await postService.supprimerPost(
             postId,
@@ -105,11 +90,6 @@ export async function supprimerPost(
         });
 
     } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erreur interne du serveur.",
-        });
+        next(error);
     }
 }
