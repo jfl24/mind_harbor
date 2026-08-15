@@ -30,7 +30,37 @@ export async function getActivities(
   }
 }
 
-// La fonction pour supprime une activité en tant qu'admin
+// La fonction pour créer une nouvelle activité en mode Admin
+export async function createActivity(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { name, categorie, description } = req.body;
+
+  if (!name) {
+    return res.status(400).json({
+      erreur: "Oups!  Vous devez fournir un nom valide pour l'activité.",
+    });
+  }
+
+  try {
+    const createdActivity = await activitesService.createActivity(
+      name,
+      categorie,
+      description,
+    );
+
+    return res.status(201).json({
+      data: createdActivity,
+      message: "Activité créée avec succès !",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// La fonction pour supprimer une activité en tant qu'admin
 
 export async function deleteActivity(
   req: Request,
