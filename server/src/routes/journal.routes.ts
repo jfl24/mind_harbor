@@ -1,8 +1,11 @@
 import { Router } from "express";
 
-import { requireAuth, requireRole } from "../middlewares/auth.ts";
+import { requireAuth } from "../middlewares/auth.js";
 
 import * as journalControlleurs from "../controllers/journal/journalController.js";
+import { validateBody } from "../middlewares/validate.js";
+
+import * as journalZodSchemas from "../schemasZod/journal.schema.js";
 
 const journalRoutes = Router();
 
@@ -10,7 +13,12 @@ const journalRoutes = Router();
 journalRoutes.get("/", requireAuth, journalControlleurs.getJournalEntry);
 
 // Pour créer une nouvelle entrée //
-journalRoutes.post("/", requireAuth, journalControlleurs.creerJournalEntry);
+journalRoutes.post(
+  "/",
+  requireAuth,
+  validateBody(journalZodSchemas.createJournalSchema),
+  journalControlleurs.creerJournalEntry,
+);
 
 // Pour obtenir un entrée selon la date //
 journalRoutes.get(
@@ -23,6 +31,7 @@ journalRoutes.get(
 journalRoutes.patch(
   "/:date",
   requireAuth,
+  validateBody(journalZodSchemas.modifierJournalSchema),
   journalControlleurs.modifyJournalEntry,
 );
 

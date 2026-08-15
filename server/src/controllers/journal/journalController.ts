@@ -141,9 +141,9 @@ export async function modifyJournalEntry(
     energie,
     sommeil,
     anxiete,
+    activities,
     evenements,
     gratitude,
-    activities,
   } = req.body;
 
   if (!userId) {
@@ -367,7 +367,7 @@ export async function getInsights(
   res: Response,
   next: NextFunction,
 ) {
-  const { activite } = req.body;
+  const activite = req.query.activite as string;
   const userId = req.user?.id;
 
   if (!userId) {
