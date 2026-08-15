@@ -15,7 +15,7 @@ export async function listerGroupes(
     req: Request,
     res: Response,
     next: NextFunction
-)  {
+) {
 
     try {
 
@@ -178,8 +178,13 @@ export async function listerDemandes(
             );
         }
 
+        const userId = req.user!.id;
+
         const demandes =
-            await groupService.listerDemandes(groupId);
+            await groupService.listerDemandes(
+                groupId,
+                userId
+            );
 
         return res.status(200).json(demandes);
 
@@ -215,11 +220,14 @@ export async function traiterDemande(
 
         const { decision } = req.body;
 
+        const userId = req.user!.id;
+
         const demande =
             await groupService.traiterDemande(
                 groupId,
                 requestId,
-                decision
+                decision,
+                userId
             );
 
         return res.status(200).json({
@@ -257,9 +265,12 @@ export async function retirerMembre(
             );
         }
 
+        const moderatorId = req.user!.id;
+
         await groupService.retirerMembre(
             groupId,
-            userId
+            userId,
+            moderatorId
         );
 
         return res.status(200).json({

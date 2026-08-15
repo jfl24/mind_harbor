@@ -190,17 +190,51 @@ export async function rejoindreGroupe(
     return membership;
 }
 
+// --------- Vérifier modérateur -----------//
+
+async function verifierModerateur(
+    groupId: number,
+    userId: string
+) {
+    const groupe = await prisma.group.findUnique({
+        where: {
+            id: groupId,
+        },
+        select: {
+            id: true,
+            moderateurId: true,
+        },
+    });
+
+    if (!groupe) {
+        throw new AppError(
+            404,
+            "NOT_FOUND",
+            "Groupe introuvable."
+        );
+    }
+
+    if (groupe.moderateurId !== userId) {
+        throw new AppError(
+            403,
+            "FORBIDDEN",
+            "Vous n'êtes pas le modérateur de ce groupe."
+        );
+    }
+}
+
 // ========================================================
 // Lister les demandes d'adhésion
 // ========================================================
 
 export async function listerDemandes(
-    groupId: number
+    groupId: number,
+    userId: string
 ) {
+    await verifierModerateur(groupId, userId);
 
     const demandes =
         await prisma.groupMembership.findMany({
-
             where: {
                 groupId,
                 membershipStatus: "EN_ATTENTE",
@@ -233,8 +267,11 @@ export async function listerDemandes(
 export async function traiterDemande(
     groupId: number,
     requestId: number,
-    decision: "ACCEPTEE" | "REFUSEE"
+    decision: "ACCEPTEE" | "REFUSEE",
+    userId: string
 ) {
+    await verifierModerateur(groupId, userId);
+
     const demande =
         await prisma.groupMembership.findFirst({
             where: {
@@ -271,8 +308,11 @@ export async function traiterDemande(
 
 export async function retirerMembre(
     groupId: number,
-    userId: string
+    userId: string,
+    moderatorId: string
 ) {
+    await verifierModerateur(groupId, moderatorId);
+
     const membre =
         await prisma.groupMembership.findFirst({
             where: {
