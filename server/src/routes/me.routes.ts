@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { requireAuth } from "../middlewares/auth";
+import { requireAuth } from "../middlewares/auth.js";
 
 import * as favorisControlleurs from "../controllers/favoris/favorisController.js";
 

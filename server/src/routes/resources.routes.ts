@@ -1,9 +1,12 @@
 import { Router } from "express";
 
-import { requireAuth, requireRole } from "../middlewares/auth.ts";
+import { requireAuth, requireRole } from "../middlewares/auth.js";
 
 import * as resourcesControlleurs from "../controllers/ressources/resourcesController.js";
 import * as favorisControlleurs from "../controllers/favoris/favorisController.js";
+import { validateBody } from "../middlewares/validate.js";
+
+import * as resourceZodSchemas from "../schemasZod/resources.schema.js";
 
 const resourcesRoutes = Router();
 
@@ -11,7 +14,11 @@ const resourcesRoutes = Router();
 resourcesRoutes.get("/", resourcesControlleurs.getResources);
 
 // Pour faire une recherche dans les ressources //
-resourcesRoutes.post("/search", resourcesControlleurs.getResourcesWithFilters);
+resourcesRoutes.post(
+  "/search",
+  validateBody(resourceZodSchemas.searchResourceSchema),
+  resourcesControlleurs.getResourcesWithFilters,
+);
 // J'utilise POST pour la recherche afin que les termes de la recherche soient dans le req.body pour éviter qu'ils soient visibles dans le req.query //
 
 // Pour trouver une ressource avec l'ID
@@ -22,6 +29,7 @@ resourcesRoutes.post(
   "/",
   requireAuth,
   requireRole("ADMINISTRATEUR"),
+  validateBody(resourceZodSchemas.createResourceSchema),
   resourcesControlleurs.createResource,
 );
 

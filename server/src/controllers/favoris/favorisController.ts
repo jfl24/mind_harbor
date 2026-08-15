@@ -6,7 +6,6 @@ import * as favorisService from "../../services/favorisService.js";
 
 // La fonction pour ajouter un favori en étant authentifié
 
-// La fonction pour poster un entreée dans son propre journal
 export async function creerFavori(
   req: Request,
   res: Response,
