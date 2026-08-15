@@ -3,3 +3,7 @@ export * from "./user.js";
 export * from "./group.js";
 export * from "./post.js";
 export * from "./message.js";
+export * from "./journal.js";
+export * from "./resource.js";
+export * from "./activity.js";
+export * from "./favorite.js";
