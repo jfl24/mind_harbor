@@ -16,7 +16,9 @@ export class AppError extends Error {
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   const isApp = err instanceof AppError;
   const status = isApp ? err.status : 500;
+
   if (status === 500) console.error(err);
+
   res.status(status).json({
     error: {
       code: isApp ? err.code : "INTERNAL_ERROR",
