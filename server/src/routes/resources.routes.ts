@@ -3,6 +3,7 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../middlewares/auth.ts";
 
 import * as resourcesControlleurs from "../controllers/ressources/resourcesController.js";
+import * as favorisControlleurs from "../controllers/favoris/favorisController.js";
 
 const resourcesRoutes = Router();
 
@@ -30,6 +31,20 @@ resourcesRoutes.delete(
   requireAuth,
   requireRole("ADMINISTRATEUR"),
   resourcesControlleurs.deleteResource,
+);
+
+// Pour ajouter une ressource aux favoris //
+resourcesRoutes.post(
+  "/:id/favorite",
+  requireAuth,
+  favorisControlleurs.creerFavori,
+);
+
+// Pour enlever une ressource des favoris //
+resourcesRoutes.delete(
+  "/:id/favorite",
+  requireAuth,
+  favorisControlleurs.deleteFavori,
 );
 
 export default resourcesRoutes;

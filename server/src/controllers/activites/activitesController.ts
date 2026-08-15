@@ -86,7 +86,7 @@ export async function deleteActivity(
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return res.status(404).json({
-          erreur: "L'activité à modifier n'a pas été trouvée.",
+          erreur: "L'activité à supprimer n'a pas été trouvée.",
         });
       }
     }
