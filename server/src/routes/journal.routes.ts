@@ -20,6 +20,23 @@ journalRoutes.post(
   journalControlleurs.creerJournalEntry,
 );
 
+// Pour obtenir des stats selon une dureé //
+journalRoutes.get(
+  "/stats",
+  requireAuth,
+  journalControlleurs.getJournalEntryWithRange,
+);
+
+// Pour obternir des moyennes selon le jour de la semaine //
+journalRoutes.get(
+  "/averages",
+  requireAuth,
+  journalControlleurs.getAveragesByDay,
+);
+
+// Pour obtenir les corrélations entre une activité et un indicateur //
+journalRoutes.get("/insights", requireAuth, journalControlleurs.getInsights);
+
 // Pour obtenir un entrée selon la date //
 journalRoutes.get(
   "/:date",
@@ -34,18 +51,5 @@ journalRoutes.patch(
   validateBody(journalZodSchemas.modifierJournalSchema),
   journalControlleurs.modifyJournalEntry,
 );
-
-// Pour obtenir des stats selon une dureé //
-journalRoutes.get(
-  "/stats",
-  requireAuth,
-  journalControlleurs.getJournalEntryWithRange,
-);
-
-// Pour obternir des moyennes selon le jour de la semaine //
-journalRoutes.get("stats", requireAuth, journalControlleurs.getAveragesByDay);
-
-// Pour obtenir les corrélations entre une activité et un indicateur //
-journalRoutes.get("insights", requireAuth, journalControlleurs.getInsights);
 
 export default journalRoutes;

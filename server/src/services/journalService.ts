@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import { AppError } from "../middlewares/error.js";
 
 // La fonction prisma pour créer une nouvelle entrée de journal
 export async function creerEntry(
@@ -78,11 +79,21 @@ export async function getEntries(
 
 // La fonction Prisma pour obtenir une entrée de journal par date
 export async function getEntryDate(userId: string, date: string) {
+  const parsedDate = new Date(date);
+
+  if (isNaN(parsedDate.getTime())) {
+    throw new AppError(
+      400,
+      "BAD_REQUEST",
+      "Le format de la date est invalide.",
+    );
+  }
+
   const journalEntry = await prisma.journalEntry.findUnique({
     where: {
       userId_date: {
         userId: userId,
-        date: new Date(String(date)),
+        date: parsedDate,
       },
     },
   });
@@ -146,6 +157,10 @@ export async function modifyEntry(
 
 // La fonction Prisma pour obtenir les entrées de journal et les moyennes selon un nombre de jours
 export async function getEntrieRange(userId: string, dateDebut: Date) {
+  if (!(dateDebut instanceof Date) || isNaN(dateDebut.getTime())) {
+    throw new Error("La date de début fournie à getEntrieRange est invalide.");
+  }
+
   const [journalEntries, aggregates] = await Promise.all([
     prisma.journalEntry.findMany({
       where: { userId, date: { gte: dateDebut } },

@@ -228,7 +228,7 @@ export async function getJournalEntryWithRange(
     return res.status(400).json({ erreur: "La période n'a pas été donnée." });
   }
 
-  const rangeClean = parseInt(String(range), 10); // Pour obtenir seulement le chiffre dans le query
+  const rangeClean = parseInt(String(range).replace(/\D/g, ""), 10); // Pour obtenir seulement le chiffre dans le query
 
   if (isNaN(rangeClean) || rangeClean <= 0) {
     return res.status(400).json({
@@ -240,7 +240,7 @@ export async function getJournalEntryWithRange(
 
   const dateDebut = new Date(now);
 
-  dateDebut.setUTCDate(dateDebut.getUTCDate() - rangeClean); // Pour filtrer à partir d'une date
+  dateDebut.setUTCDate(dateDebut.getDate() - rangeClean); // Pour filtrer à partir d'une date
 
   try {
     const { journalEntries, aggregates } = await journalService.getEntrieRange(
