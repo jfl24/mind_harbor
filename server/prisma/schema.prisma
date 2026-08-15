@@ -96,18 +96,18 @@ model User {
   autoriseMessages Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  
+
   // Journal
   journalEntries JournalEntry[]
 
   // Groupes créés
   groupsModerateur Group[]
   groupsMembership GroupMembership[]
-  
+
   // Messagerie 
   sentMessages Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
-  
+
   // Ressources favorites
   favorites Favorite[]
 
@@ -253,7 +253,7 @@ model Report {
   raison String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  
+
 }
 
 model RefreshToken {
@@ -266,3 +266,4 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
 }
+ 
