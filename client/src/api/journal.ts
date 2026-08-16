@@ -10,7 +10,13 @@ export async function postEntreeJournal(
   data: CreateJournalRequest,
 ): Promise<JournalEntry> {
   try {
-    const response = await api.post("/journal", data);
+    const token = localStorage.getItem("token"); // Pour récupérer le token dans le local storage
+
+    const response = await api.post("/journal", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;
