@@ -7,14 +7,6 @@ export interface JournalActivity {
   activity: Activity;
 }
 
-export interface JournalActivity {
-  id: number;
-  journalEntryId: number;
-  activityId: number;
-  activity: Activity;
-}
-
-
 export interface JournalEntry {
   id: number;
   userId: string;
