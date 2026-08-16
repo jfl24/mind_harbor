@@ -1,15 +1,12 @@
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 import { postEntreeJournal, getActivities } from "../api/journal";
-import {
-  type CreateJournalRequest,
-  type Activity,
-} from "../../../shared/types";
-import { InputField } from "./InputField";
+import { type CreateJournalRequest } from "../../../shared/types";
 import { Button } from "./Button";
 import { SliderField } from "./SliderField";
 import { TextArea } from "./TextArea";
 import { CheckboxGroup, type CheckboxOption } from "./CheckboxGroup";
+import { useNavigate } from "react-router-dom";
 
 function PostJournal() {
   const { estConnecte } = useAuth();
@@ -28,6 +25,7 @@ function PostJournal() {
   const [chargement, setChargement] = useState(true);
   const [selectedActitityIds, setSelectedActivityIds] = useState<number[]>([]);
   const [options, setOptions] = useState<CheckboxOption[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function chargerActivities() {
@@ -45,7 +43,6 @@ function PostJournal() {
       }
     }
     chargerActivities();
-    setChargement(true);
   }, []);
 
   async function soumettre(e: React.FormEvent) {
@@ -69,6 +66,7 @@ function PostJournal() {
       };
       await postEntreeJournal(payload);
       setEstSoumis(true);
+      navigate("/accueil");
     } catch (erreur) {
       setErreur("Oups!  Une erreur inattendue est survenue.");
     } finally {
