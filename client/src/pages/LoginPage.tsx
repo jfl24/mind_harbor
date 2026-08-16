@@ -39,7 +39,8 @@ export function LoginPage() {
       // Token récupéré du backend et authcontext le sauvegarde dans localStorage
       seConnecter(response.data.tokenAcces);
 
-    } catch {
+    } catch (error) {
+      console.error("Erreur login :", error);
 
       setErreur("La connexion a échoué.");
 
