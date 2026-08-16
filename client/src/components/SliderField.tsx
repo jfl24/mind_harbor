@@ -56,7 +56,7 @@ export function SliderField({
         {options.map((num) => (
           <span
             key={num}
-            className={`silder-tick-item ${Number(value) === num ? "active" : ""}`}
+            className={`slider-tick-item ${Number(value) === num ? "active" : ""}`}
           >
             {num}
           </span>
