@@ -19,7 +19,6 @@ textarea {
   font-family: inherit;
 }
 
-
 /* =========================================================
    PAGE D'ACCUEIL
    ========================================================= */
@@ -73,7 +72,6 @@ textarea {
   transform: translateY(-2px);
 }
 
-
 /* =========================================================
    PAGE LOGIN
    ========================================================= */
@@ -87,11 +85,7 @@ textarea {
 
   padding: 30px;
 
-  background: linear-gradient(
-    135deg,
-    #eef7f6,
-    #f7f4f8
-  );
+  background: linear-gradient(135deg, #eef7f6, #f7f4f8);
 }
 
 .login-container {
@@ -104,8 +98,7 @@ textarea {
 
   border-radius: 16px;
 
-  box-shadow:
-    0 8px 30px rgba(36, 59, 83, 0.10);
+  box-shadow: 0 8px 30px rgba(36, 59, 83, 0.1);
 }
 
 .login-title {
@@ -161,7 +154,6 @@ textarea {
   transform: translateY(-1px);
 }
 
-
 /* =========================================================
    LIEN INSCRIPTION
    ========================================================= */
@@ -191,7 +183,6 @@ textarea {
   text-decoration: underline;
 }
 
-
 /* =========================================================
    PAGE INSCRIPTION
    ========================================================= */
@@ -206,8 +197,7 @@ textarea {
 
   border-radius: 16px;
 
-  box-shadow:
-    0 8px 30px rgba(36, 59, 83, 0.10);
+  box-shadow: 0 8px 30px rgba(36, 59, 83, 0.1);
 }
 
 .register-title {
@@ -258,7 +248,6 @@ textarea {
   background-color: #3f858d;
 }
 
-
 /* =========================================================
    BOUTONS
    ========================================================= */
@@ -291,7 +280,6 @@ textarea {
   outline: 3px solid #b7dfe2;
   outline-offset: 2px;
 }
-
 
 /* =========================================================
    INPUTS
@@ -335,8 +323,7 @@ textarea {
 .input-field:focus {
   border-color: #4f9da6;
 
-  box-shadow:
-    0 0 0 3px rgba(79, 157, 166, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 157, 166, 0.15);
 }
 
 .input-field.input-error {
@@ -348,7 +335,6 @@ textarea {
   color: #c45b5b;
 }
 
-
 /* =========================================================
    ACCUEIL UTILISATEUR
    ========================================================= */
@@ -357,7 +343,6 @@ textarea {
   min-height: 100vh;
   background-color: #f6f8f7;
 }
-
 
 /* =========================================================
    BARRE DE NAVIGATION
@@ -436,7 +421,6 @@ textarea {
   color: #c45b5b;
 }
 
-
 /* =========================================================
    CONTENU PRINCIPAL
    ========================================================= */
@@ -449,7 +433,6 @@ textarea {
 
   padding: 50px 30px;
 }
-
 
 /* =========================================================
    MESSAGE DE BIENVENUE
@@ -480,7 +463,6 @@ textarea {
 
   line-height: 1.6;
 }
-
 
 /* =========================================================
    FONCTIONNALITÉS
@@ -520,7 +502,6 @@ textarea {
   gap: 20px;
 }
 
-
 /* =========================================================
    CARTES DES FONCTIONNALITÉS
    ========================================================= */
@@ -552,7 +533,7 @@ textarea {
 
   border-color: #8cc5ca;
 
-  box-shadow: 0 8px 22px rgba(36, 59, 83, 0.10);
+  box-shadow: 0 8px 22px rgba(36, 59, 83, 0.1);
 }
 
 .feature-icon {
@@ -589,7 +570,6 @@ textarea {
 
   font-size: 14px;
 }
-
 
 /* =========================================================
    SECTION PRÉSENTATION + IMAGE
@@ -649,7 +629,6 @@ textarea {
   border-radius: 12px;
 }
 
-
 /* =========================================================
    FORMULAIRE DU JOURNAL
    ========================================================= */
@@ -665,8 +644,7 @@ textarea {
 
   border-radius: 16px;
 
-  box-shadow:
-    0 6px 25px rgba(36, 59, 83, 0.08);
+  box-shadow: 0 6px 25px rgba(36, 59, 83, 0.08);
 }
 
 .journal-title {
@@ -682,7 +660,6 @@ textarea {
   line-height: 1.5;
   margin-bottom: 30px;
 }
-
 
 /* =========================================================
    SLIDERS DU JOURNAL
@@ -750,7 +727,6 @@ textarea {
   font-weight: 700;
 }
 
-
 /* =========================================================
    TEXTAREA
    ========================================================= */
@@ -796,8 +772,7 @@ textarea {
 .text-area-field:focus {
   border-color: #4f9da6;
 
-  box-shadow:
-    0 0 0 3px rgba(79, 157, 166, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 157, 166, 0.15);
 }
 
 .text-area-field.text-area-error {
@@ -808,7 +783,6 @@ textarea {
   font-size: 0.8rem;
   color: #c45b5b;
 }
-
 
 /* =========================================================
    CHECKBOX
@@ -1187,7 +1161,6 @@ textarea {
    ========================================================= */
 
 @media (max-width: 900px) {
-
   .navbar {
     flex-wrap: wrap;
 
@@ -1227,9 +1200,7 @@ textarea {
   }
 }
 
-
 @media (max-width: 768px) {
-
   .home-login-button {
     left: 5%;
     bottom: 8%;
@@ -1261,9 +1232,7 @@ textarea {
   }
 }
 
-
 @media (max-width: 600px) {
-
   .user-home-content {
     padding: 35px 20px;
   }
@@ -1293,4 +1262,22 @@ textarea {
 
     overflow-x: auto;
   }
+}
+
+/* Le conteneur pour les cartes de Ressource */
+.resource-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 3rem;
+  align-items: stretch;
+}
+
+.resource-title {
+  margin-top: 0;
+
+  color: #243b53;
+
+  font-size: 28px;
 }

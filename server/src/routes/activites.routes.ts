@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { requireAuth, requireRole } from "../middlewares/auth.ts";
+import { requireAuth, requireRole } from "../middlewares/auth.js";
 
 import * as activitesControlleurs from "../controllers/activites/activitesController.js";
 
