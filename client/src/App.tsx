@@ -9,6 +9,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AccueilUtilisateurPage } from "./pages/AccueilUtilisateurPage";
 import { JournalPage } from "./pages/JournalPage";
+import { GroupPage } from "./pages/GroupPage";
 
 function App() {
   return (
@@ -43,6 +44,12 @@ function App() {
         <Route
           path="/journal"
           element={<JournalPage />}
+        />
+
+        {/* Page des groupes */}
+        <Route
+          path="/groupes"
+          element={<GroupPage />}
         />
 
       </Routes>
