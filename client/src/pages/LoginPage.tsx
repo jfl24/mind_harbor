@@ -1,18 +1,20 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 import { login } from "../api/auth";
 
-
 // ------------ Page de connexion ------------------ //
 export function LoginPage() {
-
-  // Pour enregistrer le token
+  // Permet de sauvegarder le token après la connexion
   const { seConnecter } = useAuth();
 
-  // valeurs des champs du formulaire
+  // Permet de rediriger l'utilisateur vers une autre page
+  const navigate = useNavigate();
+
+  // Valeurs des champs du formulaire
   const [email, setEmail] = useState("");
   const [passwordHash, setPasswordHash] = useState("");
 
@@ -20,58 +22,56 @@ export function LoginPage() {
   const [erreur, setErreur] = useState("");
   const [chargement, setChargement] = useState(false);
 
-
   // Fonction appelée lorsque l'utilisateur valide le formulaire
   async function handleSubmit() {
-
     // On supprime une ancienne erreur
     setErreur("");
+
     // On indique que la connexion est en cours
     setChargement(true);
 
     try {
-
       const response = await login({
         email,
         passwordHash,
       });
 
-      // Token récupéré du backend et authcontext le sauvegarde dans localStorage
+      // Token récupéré du backend et sauvegardé dans le AuthContext
       seConnecter(response.data.tokenAcces);
 
+      // Après une connexion réussie, on redirige vers l'espace utilisateur
+      navigate("/accueil");
     } catch (error) {
       console.error("Erreur login :", error);
 
       setErreur("La connexion a échoué.");
-
     } finally {
-
       setChargement(false);
     }
   }
 
-
   return (
     <div className="login-page">
-
       <div className="login-container">
 
-        <h1>Connexion</h1>
+        <h1 className="login-title">
+          Connexion
+        </h1>
 
-        <p>
+        <p className="login-description">
           Connectez-vous à votre compte MindHarbor.
         </p>
 
         <form
+          className="login-form"
           onSubmit={(event) => {
-            // Empeche le navigateur de recharger la page
+            // Empêche le navigateur de recharger la page
             event.preventDefault();
 
-            // On lance notre fonction de connexion
+            // Lance la fonction de connexion
             handleSubmit();
           }}
         >
-
           {/* Champ pour saisir le courriel */}
           <InputField
             label="Courriel"
@@ -106,11 +106,18 @@ export function LoginPage() {
             contenu={chargement ? "Connexion..." : "Se connecter"}
             type="submit"
           />
-
         </form>
 
-      </div>
+        {/* Lien vers la page d'inscription */}
+        <div className="register-link">
+          <span>Pas encore de compte ?</span>
 
+          <Link to="/register">
+            S'inscrire
+          </Link>
+        </div>
+
+      </div>
     </div>
   );
 }
