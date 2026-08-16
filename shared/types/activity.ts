@@ -1,8 +1,4 @@
-export type ActivityCategory =
-  | "EXERCICE"
-  | "BIEN_ETRE"
-  | "LOISIR"
-  | "SORTIE";
+export type ActivityCategory = "EXERCICE" | "BIEN_ETRE" | "LOISIR" | "SORTIE";
 
 export interface Activity {
   id: number;
