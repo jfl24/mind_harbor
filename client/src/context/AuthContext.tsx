@@ -9,24 +9,33 @@ type AuthType = {
 
 const AuthContext = createContext<AuthType>(null as any);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
+    localStorage.getItem("accessToken"),
   );
 
   function seConnecter(t: string) {
-    localStorage.setItem("token", t);
+    localStorage.setItem("accessToken", t);
     setToken(t);
   }
 
   function seDeconnecter() {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
     setToken(null);
   }
 
   return (
     <AuthContext.Provider
-      value={{ token, estConnecte: !!token, seConnecter, seDeconnecter }}
+      value={{
+        token,
+        estConnecte: !!token,
+        seConnecter,
+        seDeconnecter,
+      }}
     >
       {children}
     </AuthContext.Provider>

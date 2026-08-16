@@ -875,6 +875,312 @@ textarea {
   color: #34495e;
 }
 
+/* =========================================================
+   PAGE GROUPES
+   ========================================================= */
+
+.group-page {
+  min-height: 100vh;
+  background-color: #f6f8f7;
+}
+
+.group-content {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+  padding: 40px 30px;
+}
+
+.group-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.group-header h1 {
+  margin: 0 0 10px;
+
+  color: #243b53;
+  font-size: 32px;
+}
+
+.group-header p {
+  max-width: 650px;
+
+  margin: 0 auto;
+
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   RECHERCHE
+   ========================================================= */
+
+.group-search-card {
+  padding: 25px;
+
+  margin-bottom: 25px;
+
+  background-color: white;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 20px rgba(36, 59, 83, 0.07);
+}
+
+.group-search-card h2 {
+  margin-top: 0;
+
+  color: #243b53;
+  font-size: 20px;
+}
+
+.group-search-form {
+  display: flex;
+  gap: 10px;
+}
+
+.group-input {
+  flex: 1;
+
+  padding: 12px 14px;
+
+  border: 1px solid #d1d9df;
+  border-radius: 8px;
+
+  background-color: white;
+
+  color: #243b53;
+
+  font-size: 1rem;
+
+  outline: none;
+}
+
+.group-input:focus {
+  border-color: #4f9da6;
+
+  box-shadow:
+    0 0 0 3px rgba(79, 157, 166, 0.15);
+}
+
+
+/* =========================================================
+   CRÉATION D'UN GROUPE
+   ========================================================= */
+
+.group-create-card {
+  padding: 30px;
+
+  margin-bottom: 35px;
+
+  background-color: white;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 5px 20px rgba(36, 59, 83, 0.07);
+}
+
+.group-create-card h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+
+  color: #243b53;
+
+  font-size: 22px;
+}
+
+.group-textarea {
+  width: 100%;
+
+  padding: 12px 14px;
+
+  border: 1px solid #d1d9df;
+  border-radius: 8px;
+
+  background-color: white;
+
+  color: #243b53;
+
+  font-size: 1rem;
+
+  resize: vertical;
+
+  outline: none;
+}
+
+.group-textarea:focus {
+  border-color: #4f9da6;
+
+  box-shadow:
+    0 0 0 3px rgba(79, 157, 166, 0.15);
+}
+
+.group-select {
+  width: 100%;
+
+  padding: 12px 14px;
+
+  border: 1px solid #d1d9df;
+  border-radius: 8px;
+
+  background-color: white;
+
+  color: #243b53;
+
+  font-size: 1rem;
+
+  cursor: pointer;
+
+  outline: none;
+}
+
+.group-select:focus {
+  border-color: #4f9da6;
+}
+
+
+/* =========================================================
+   LISTE DES GROUPES
+   ========================================================= */
+
+.groups-section {
+  margin-bottom: 50px;
+}
+
+.groups-section > h2 {
+  margin-bottom: 20px;
+
+  color: #243b53;
+
+  font-size: 24px;
+}
+
+.groups-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   CARTE GROUPE
+   ========================================================= */
+
+.group-card {
+  display: flex;
+  flex-direction: column;
+
+  padding: 25px;
+
+  background-color: white;
+
+  border: 1px solid #e1e8e8;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 15px rgba(36, 59, 83, 0.06);
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.group-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #8cc5ca;
+
+  box-shadow:
+    0 8px 22px rgba(36, 59, 83, 0.10);
+}
+
+.group-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 50px;
+  height: 50px;
+
+  margin-bottom: 15px;
+
+  border-radius: 12px;
+
+  background-color: #eaf6f7;
+
+  font-size: 24px;
+}
+
+.group-card h3 {
+  margin: 0 0 10px;
+
+  color: #243b53;
+
+  font-size: 19px;
+}
+
+.group-card p {
+  flex: 1;
+
+  margin: 0 0 15px;
+
+  color: #6b7280;
+
+  line-height: 1.5;
+
+  font-size: 14px;
+}
+
+.group-visibility {
+  display: block;
+
+  margin-bottom: 18px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE GROUPES
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .groups-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+
+  .group-content {
+    padding: 30px 20px;
+  }
+
+  .group-search-form {
+    flex-direction: column;
+  }
+
+  .groups-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .group-create-card,
+  .group-search-card {
+    padding: 22px;
+  }
+}
 
 /* =========================================================
    RESPONSIVE
