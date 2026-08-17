@@ -1,5 +1,3 @@
-import { PrismaClient } from "../generated/prisma/client.js";
-
 import {
   Role,
   GroupVisibility,
@@ -14,12 +12,12 @@ import {
 import bcrypt from "bcryptjs";
 import prisma from "../src/lib/prisma.js";
 async function main() {
-  console.log("🌱 Début du seeding de la base de données...");
+  console.log("Début du seeding de la base de données...");
 
   // ==========================================
   // 0. NETTOYAGE (Pour réexécution sans erreurs)
   // ==========================================
-  console.log("🧹 Nettoyage des anciennes données...");
+  console.log("Nettoyage des anciennes données...");
   await prisma.report.deleteMany();
   await prisma.favorite.deleteMany();
   await prisma.comment.deleteMany();
@@ -40,7 +38,7 @@ async function main() {
   // ==========================================
   // 1. CRÉATION DES UTILISATEURS (Min. 10)
   // ==========================================
-  console.log("👤 Création des utilisateurs...");
+  console.log("Création des utilisateurs...");
 
   // 1. Administrateur
   const admin = await prisma.user.create({
@@ -140,7 +138,7 @@ async function main() {
   // ==========================================
   // 2. ACTIVITÉS DU CATALOGUE
   // ==========================================
-  console.log("🏃 Création des activités de catalogue...");
+  console.log("Création des activités de catalogue...");
   const activitiesData = [
     {
       name: "Course à pied",
@@ -178,7 +176,7 @@ async function main() {
   // ==========================================
   // 3. 30 JOURS D'ENTRÉES DE JOURNAL (Pour Alex)
   // ==========================================
-  console.log("📅 Création de 30 jours d'entrées de journal...");
+  console.log("Création de 30 jours d'entrées de journal...");
   const today = new Date();
 
   for (let i = 29; i >= 0; i--) {
@@ -186,16 +184,16 @@ async function main() {
     entryDate.setDate(today.getDate() - i);
 
     // Variations pour simuler une courbe démontrable
-    const scoreBase = (i % 5) + 5; // Note entre 5 et 9
+    const scoreBase = (i % 5) + 1; // Note entre 1 et 5
 
     const entry = await prisma.journalEntry.create({
       data: {
         userId: userJournal.id,
         date: entryDate,
         humeur: scoreBase,
-        energie: Math.min(10, scoreBase + 1),
+        energie: Math.min(5, scoreBase + 1),
         sommeil: Math.max(1, scoreBase - 1),
-        anxiete: Math.max(1, 10 - scoreBase),
+        anxiete: Math.max(1, 6 - scoreBase),
         evenements:
           i % 2 === 0
             ? `Journée remplie d'activités (#${30 - i})`
@@ -209,7 +207,7 @@ async function main() {
     await prisma.journalActivity.create({
       data: {
         journalEntryId: entry.id,
-        activityId: selectedActivity.id,
+        activityId: selectedActivity!.id,
       },
     });
   }
@@ -227,8 +225,8 @@ async function main() {
       data: {
         titre: `Guide & Ressource #${i}`,
         description: `Description détaillée de la ressource éducative ou pratique numéro ${i}.`,
-        type: types[i % types.length],
-        categorie: categories[i % categories.length],
+        type: types[i % types.length]!,
+        categorie: categories[i % categories.length]!,
         url: `https://example.com/ressource-${i}`,
         duree: (i % 6) * 5 + 5, // Durée entre 5 et 30 min
       },
@@ -259,7 +257,7 @@ async function main() {
         "Groupe privé axé sur le suivi personnalisé des routines nocturnes.",
       thematique: "Sommeil",
       groupVisibility: GroupVisibility.PRIVE,
-      moderateurId: createdUsers[0].id,
+      moderateurId: createdUsers[0]!.id,
     },
   });
 
@@ -281,7 +279,7 @@ async function main() {
   await prisma.groupMembership.create({
     data: {
       groupId: groupPrivate.id,
-      userId: createdUsers[0].id,
+      userId: createdUsers[0]!.id,
       groupMemberStatus: GroupMemberStatus.MODERATEUR,
       membershipStatus: MembershipStatus.ACCEPTEE,
     },
@@ -293,22 +291,24 @@ async function main() {
   console.log("📝 Création des publications pour tester la pagination...");
 
   // Générer 25 posts dans le groupe public pour valider la pagination
+  const createdPosts = [];
   for (let i = 1; i <= 25; i++) {
     const author = allUsers[i % allUsers.length];
     const post = await prisma.post.create({
       data: {
         groupId: groupPublic.id,
-        userId: author.id,
+        userId: author!.id,
         content: `Publication de test #${i} : Partage de réflexion sur la journée. Qu'en pensez-vous ?`,
       },
     });
+    createdPosts.push(post);
 
     // Ajouter quelques commentaires sur les 5 premiers posts
     if (i <= 5) {
       await prisma.comment.create({
         data: {
           postId: post.id,
-          userId: allUsers[(i + 1) % allUsers.length].id,
+          userId: allUsers[(i + 1) % allUsers.length]!.id,
           content: `Merci pour ce partage ! Très intéressant point de vue pour le post #${i}.`,
         },
       });
@@ -322,14 +322,14 @@ async function main() {
   await prisma.favorite.create({
     data: {
       userId: userJournal.id,
-      resourceId: createdResources[0].id,
+      resourceId: createdResources[0]!.id,
     },
   });
 
   await prisma.report.create({
     data: {
-      reporterId: createdUsers[1].id,
-      resourceId: createdResources[1].id,
+      reporterId: createdUsers[1]!.id,
+      postId: createdPosts[1]!.id,
       reportCategory: ReportCategory.SPAM,
       reportStatus: ReportStatus.EN_ATTENTE,
       raison: "Contenu semblant être de la publicité non sollicitée.",
