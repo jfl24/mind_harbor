@@ -7,6 +7,7 @@ import {
   ResourceCategory,
   ActivityCategory,
   ReportCategory,
+  ProfileVisibility,
   ReportStatus,
 } from "../generated/prisma/enums.js";
 import bcrypt from "bcryptjs";
@@ -66,14 +67,20 @@ async function main() {
     },
   });
 
-  // 8 Autres utilisateurs
-  const otherUsersData = [
-    {
+  const userPrivate = await prisma.user.create({
+    data: {
       email: "marie.curie@example.com",
+      passwordHash: defaultPasswordHash,
+      role: Role.UTILISATEUR,
       pseudonyme: "MarieC",
       prenom: "Marie",
       nom: "Curie",
+      profileVisibility: ProfileVisibility.PRIVE,
     },
+  });
+
+  // 8 Autres utilisateurs
+  const otherUsersData = [
     {
       email: "lucas.martin@example.com",
       pseudonyme: "LucasM",
@@ -133,7 +140,7 @@ async function main() {
     createdUsers.push(created);
   }
 
-  const allUsers = [admin, userJournal, ...createdUsers];
+  const allUsers = [admin, userJournal, userPrivate, ...createdUsers];
 
   // ==========================================
   // 2. ACTIVITÉS DU CATALOGUE
