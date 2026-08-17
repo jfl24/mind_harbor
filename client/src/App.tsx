@@ -10,6 +10,7 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { AccueilUtilisateurPage } from "./pages/AccueilUtilisateurPage";
 import { JournalPage } from "./pages/JournalPage";
 import { GroupPage } from "./pages/GroupPage";
+import ResourcePage from "./pages/ResourcePage";
 
 function App() {
   return (
@@ -50,6 +51,12 @@ function App() {
         <Route
           path="/groupes"
           element={<GroupPage />}
+        />
+
+        {/* Page des ressources */}
+        <Route
+          path="/ressources"
+          element={<ResourcePage />}
         />
 
       </Routes>
