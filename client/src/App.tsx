@@ -1,8 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
@@ -16,49 +12,26 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Page d'accueil publique */}
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
+        <Route path="/" element={<HomePage />} />
 
         {/* Page de connexion */}
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
+        <Route path="/login" element={<LoginPage />} />
 
         {/* Page d'inscription */}
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Accueil de l'utilisateur connecté */}
-        <Route
-          path="/accueil"
-          element={<AccueilUtilisateurPage />}
-        />
+        <Route path="/accueil" element={<AccueilUtilisateurPage />} />
 
         {/* Page du journal */}
-        <Route
-          path="/journal"
-          element={<JournalPage />}
-        />
+        <Route path="/journal" element={<JournalPage />} />
 
         {/* Page des groupes */}
-        <Route
-          path="/groupes"
-          element={<GroupPage />}
-        />
+        <Route path="/groupes" element={<GroupPage />} />
 
         {/* Page des ressources */}
-        <Route
-          path="/ressources"
-          element={<ResourcePage />}
-        />
-
+        <Route path="/ressources" element={<ResourcePage />} />
       </Routes>
     </BrowserRouter>
   );

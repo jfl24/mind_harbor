@@ -887,7 +887,6 @@ textarea {
   line-height: 1.6;
 }
 
-
 /* =========================================================
    RECHERCHE
    ========================================================= */
@@ -901,8 +900,7 @@ textarea {
 
   border-radius: 14px;
 
-  box-shadow:
-    0 5px 20px rgba(36, 59, 83, 0.07);
+  box-shadow: 0 5px 20px rgba(36, 59, 83, 0.07);
 }
 
 .group-search-card h2 {
@@ -937,10 +935,8 @@ textarea {
 .group-input:focus {
   border-color: #4f9da6;
 
-  box-shadow:
-    0 0 0 3px rgba(79, 157, 166, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 157, 166, 0.15);
 }
-
 
 /* =========================================================
    CRÉATION D'UN GROUPE
@@ -955,8 +951,7 @@ textarea {
 
   border-radius: 14px;
 
-  box-shadow:
-    0 5px 20px rgba(36, 59, 83, 0.07);
+  box-shadow: 0 5px 20px rgba(36, 59, 83, 0.07);
 }
 
 .group-create-card h2 {
@@ -990,8 +985,7 @@ textarea {
 .group-textarea:focus {
   border-color: #4f9da6;
 
-  box-shadow:
-    0 0 0 3px rgba(79, 157, 166, 0.15);
+  box-shadow: 0 0 0 3px rgba(79, 157, 166, 0.15);
 }
 
 .group-select {
@@ -1017,7 +1011,6 @@ textarea {
   border-color: #4f9da6;
 }
 
-
 /* =========================================================
    LISTE DES GROUPES
    ========================================================= */
@@ -1042,7 +1035,6 @@ textarea {
   gap: 20px;
 }
 
-
 /* =========================================================
    CARTE GROUPE
    ========================================================= */
@@ -1059,8 +1051,7 @@ textarea {
 
   border-radius: 14px;
 
-  box-shadow:
-    0 4px 15px rgba(36, 59, 83, 0.06);
+  box-shadow: 0 4px 15px rgba(36, 59, 83, 0.06);
 
   transition:
     transform 0.2s,
@@ -1073,8 +1064,7 @@ textarea {
 
   border-color: #8cc5ca;
 
-  box-shadow:
-    0 8px 22px rgba(36, 59, 83, 0.10);
+  box-shadow: 0 8px 22px rgba(36, 59, 83, 0.1);
 }
 
 .group-icon {
@@ -1124,20 +1114,17 @@ textarea {
   font-size: 13px;
 }
 
-
 /* =========================================================
    RESPONSIVE GROUPES
    ========================================================= */
 
 @media (max-width: 900px) {
-
   .groups-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
-
   .group-content {
     padding: 30px 20px;
   }

@@ -33,17 +33,17 @@ function ResourcePage() {
 
   const IMAGES_PAR_CATEGORIE: Record<string, string> = {
     ANXIETE:
-      "https://unsplash.com/fr/photos/un-homme-tient-ses-cheveux-en-lair-vf7NiRQtLxE",
+      "https://plus.unsplash.com/premium_photo-1689177356594-b988a1cc45ff?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YW54aSVDMyVBOXQlQzMlQTl8ZW58MHx8MHx8fDA%3D",
     SOMMEIL:
-      "https://unsplash.com/fr/photos/white-cat-sleeps-under-white-comforter-uy5t-CJuIK4",
+      "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c29tbWVpbHxlbnwwfHwwfHx8MA%3D%3D",
     RELATIONS:
-      "https://unsplash.com/fr/photos/four-person-hands-wrap-around-shoulders-while-looking-at-sunset-PGnqT0rXWLs",
+      "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cmVsYXRpb25zfGVufDB8fDB8fHww",
     TRAVAIL:
-      "https://unsplash.com/fr/photos/people-sitting-down-near-table-with-assorted-laptop-computers-SYTO3xs06fU",
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dHJhdmFpbHxlbnwwfHwwfHx8MA%3D%3D",
     DEUIL:
-      "https://unsplash.com/fr/photos/deux-colombes-blanches-en-vol-6XcziMmkNgQ",
+      "https://images.unsplash.com/photo-1507126882445-434b04530d1a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGV1aWx8ZW58MHx8MHx8fDA%3D",
     DEFAULT:
-      "https://unsplash.com/fr/photos/femme-daffaires-asiatique-assise-dans-un-bureau-et-verifiant-les-informations-sur-un-document-financier-ctJtMl1eveY",
+      "https://plus.unsplash.com/premium_photo-1669904021308-567d085a0ee7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8dHJhdmFpbHxlbnwwfHwwfHx8MA%3D%3D",
   };
 
   return (
